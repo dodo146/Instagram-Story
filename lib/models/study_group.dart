@@ -14,10 +14,7 @@ class StoryGroup {
   static List<StoryGroup> getStories() {
     List<StoryGroup> stories = [];
     stories.add(StoryGroup(
-        stories: [
-          "/assets/images/grandma.jpg",
-          "/assets/images/dog_image.jpeg"
-        ],
+        stories: ["assets/images/grandma.jpg", "assets/images/dog_image.jpeg"],
         icon: Icon(
           Icons.boy,
           size: 35,
@@ -25,30 +22,21 @@ class StoryGroup {
         name: "Doğukan"));
 
     stories.add(StoryGroup(
-        stories: [
-          "/assets/images/grandma.jpg",
-          "/assets/images/dog_image.jpeg"
-        ],
+        stories: ["assets/images/dog_image.jpeg", "assets/images/grandma.jpg"],
         icon: Icon(
           Icons.boy,
           size: 35,
         ),
         name: "Hasan"));
     stories.add(StoryGroup(
-        stories: [
-          "/assets/images/grandma.jpg",
-          "/assets/images/dog_image.jpeg"
-        ],
+        stories: ["assets/images/grandma.jpg", "assets/images/dog_image.jpeg"],
         icon: Icon(
           Icons.boy,
           size: 35,
         ),
         name: "Ozan"));
     stories.add(StoryGroup(
-        stories: [
-          "/assets/images/grandma.jpg",
-          "/assets/images/dog_image.jpeg"
-        ],
+        stories: ["assets/images/dog_image.jpeg", "assets/images/grandma.jpg"],
         icon: Icon(
           Icons.girl,
           size: 35,

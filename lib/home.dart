@@ -2,10 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:instagram_story/models/study_group.dart';
+import 'package:instagram_story/story.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
-  List<StoryGroup> Story_groups = [];
+  static List<StoryGroup> Story_groups = [];
 
   void _getStories() {
     Story_groups = StoryGroup.getStories();
@@ -41,11 +42,18 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     FloatingActionButton(
+                      heroTag: "btn$index",
                       shape: CircleBorder(eccentricity: 1.0),
-                      splashColor: Colors.pink,
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: ((context) {
+                          return StoryPage(
+                            stories: Story_groups[index].stories,
+                          );
+                        })));
+                      },
                       child: CircleAvatar(
-                        radius: 26,
+                        radius: 30,
                         child: Story_groups[index].icon,
                         backgroundColor: Colors.white,
                       ),
@@ -80,7 +88,7 @@ class HomePage extends StatelessWidget {
       title: Text(
         "Wishtagram",
         style: TextStyle(
-          color: Colors.blueAccent,
+          color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
       ),
