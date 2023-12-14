@@ -7,7 +7,8 @@ import 'package:instagram_story/home.dart';
 import 'package:video_player/video_player.dart';
 
 class StoryPage extends StatelessWidget {
-  StoryPage({super.key});
+  StoryPage({super.key, required this.index});
+  final int index;
   late VideoPlayerController _controller;
   late ChewieController _chewieController;
 
@@ -15,14 +16,7 @@ class StoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(
-            "Story",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.black,
-          centerTitle: true,
-        ),
+        appBar: appBar(),
         body: Container(
           height: double.infinity,
           width: double.infinity,
@@ -49,8 +43,19 @@ class StoryPage extends StatelessWidget {
                   } else {
                     return GestureDetector(
                       child: ShowImageOrVideo(current_state),
-                      onTap: () {
-                        context.read<StoryBloc>().add(NextStoryEvent());
+                      onTapUp: (TapUpDetails details) {
+                        // Get the width of the screen
+                        double screenWidth = MediaQuery.of(context).size.width;
+
+                        // Determine if the tap was on the left or right side
+                        bool isTappedOnLeft =
+                            details.globalPosition.dx < screenWidth / 2;
+
+                        if (isTappedOnLeft) {
+                          context.read<StoryBloc>().add(PreviousStoryEvent());
+                        } else {
+                          context.read<StoryBloc>().add(NextStoryEvent());
+                        }
                       },
                     );
                   }
@@ -62,6 +67,17 @@ class StoryPage extends StatelessWidget {
             ],
           ),
         ));
+  }
+
+  AppBar appBar() {
+    return AppBar(
+      title: Text(
+        "Story",
+        style: TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.black,
+      centerTitle: true,
+    );
   }
 
   Widget ShowImageOrVideo(StoryShown state) {

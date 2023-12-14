@@ -50,7 +50,9 @@ class HomePage extends StatelessWidget {
                         context.read<StoryBloc>().add(StoryPressed(index));
                         Navigator.push(context,
                             MaterialPageRoute(builder: ((context) {
-                          return StoryPage();
+                          return StoryPage(
+                            index: index,
+                          );
                         })));
                       },
                       child: CircleAvatar(

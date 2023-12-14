@@ -39,7 +39,14 @@ class StoryBloc extends Bloc<StoryEvent, StoryState> {
           emit(StoryShown(current_group_index, current_story_index - 1));
         } else {
           //stories finished.Go to the previous story group if possible
-          emit(StoryShown(current_group_index - 1, 0));
+          //When we go back a story group, the last story from that group should be played
+          if (current_group_index - 1 < 0) {
+            //we go back but now ouf of bounds
+            emit(StoryShown(current_group_index - 1, 0));
+          } else {
+            emit(StoryShown(current_group_index - 1,
+                StoryGroups[current_group_index - 1].stories.length - 1));
+          }
         }
       }
     });
