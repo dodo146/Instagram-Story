@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagram_story/bloc/app_bloc.dart';
 import 'package:instagram_story/bloc/story_bloc.dart';
 import 'package:instagram_story/models/study_group.dart';
 import 'package:instagram_story/story.dart';
@@ -47,7 +48,8 @@ class HomePage extends StatelessWidget {
                       heroTag: "btn$index",
                       shape: CircleBorder(eccentricity: 1.0),
                       onPressed: () {
-                        context.read<StoryBloc>().add(StoryPressed(index));
+                        context.read<AppBloc>().add(StoryGroupPressed(index));
+                        context.read<StoryBloc>().add(LoadStory());
                         Navigator.push(context,
                             MaterialPageRoute(builder: ((context) {
                           return StoryPage(

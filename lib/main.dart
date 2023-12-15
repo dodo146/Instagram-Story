@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagram_story/bloc/app_bloc.dart';
 import 'package:instagram_story/bloc/story_bloc.dart';
 import 'package:instagram_story/home.dart';
 
@@ -13,8 +14,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => StoryBloc(),
+    StoryBloc storyBloc = StoryBloc();
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AppBloc(storyBloc: storyBloc)),
+        BlocProvider.value(value: storyBloc),
+      ],
       child: MaterialApp(
         title: 'Instagram Story',
         theme: ThemeData(

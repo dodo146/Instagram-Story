@@ -7,15 +7,16 @@ sealed class StoryEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class NextStoryEvent extends StoryEvent {}
+class NextStory extends StoryEvent {}
 
-class PreviousStoryEvent extends StoryEvent {}
+class PreviousStory extends StoryEvent {}
 
-class NextStoryGroupEvent extends StoryEvent {}
+class LoadStory extends StoryEvent {}
 
-class PreviousStoryGroupEvent extends StoryEvent {}
+class SetStoryIndex extends StoryEvent {
+  final int story_index;
+  SetStoryIndex({required this.story_index});
 
-class StoryPressed extends StoryEvent {
-  final int groupIndex;
-  StoryPressed(this.groupIndex);
+  @override
+  List<Object> get props => [story_index];
 }

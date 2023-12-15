@@ -20,7 +20,6 @@ class StoryGroup extends Equatable {
       stories: [
         "assets/images/grandma.jpg",
         "assets/images/dog_image.jpeg",
-        "assets/videos/video.mp4"
       ],
       icon: Icon(
         Icons.boy,
@@ -33,7 +32,6 @@ class StoryGroup extends Equatable {
       stories: [
         "assets/images/dog_image.jpeg",
         "assets/images/grandma.jpg",
-        "assets/videos/video.mp4"
       ],
       icon: Icon(
         Icons.boy,
@@ -45,7 +43,6 @@ class StoryGroup extends Equatable {
       stories: [
         "assets/images/grandma.jpg",
         "assets/images/dog_image.jpeg",
-        "assets/videos/pexels.mp4"
       ],
       icon: Icon(
         Icons.boy,
@@ -57,7 +54,6 @@ class StoryGroup extends Equatable {
       stories: [
         "assets/images/dog_image.jpeg",
         "assets/images/grandma.jpg",
-        "assets/videos/pexels.mp4"
       ],
       icon: Icon(
         Icons.girl,
