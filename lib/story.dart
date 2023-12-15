@@ -20,74 +20,107 @@ class StoryPage extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: appBar(context, appBloc),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              LinearProgressIndicator(),
-              BlocBuilder<AppBloc, AppState>(builder: (context, app_state) {
-                if (app_state is AppLoaded) {
-                  final current_state = app_state;
-                  final story_groups = current_state.story_groups;
-                  final group_index = current_state.currentStoryGroupIndex;
-                  return BlocBuilder<StoryBloc, StoryState>(
-                      builder: (context, story_state) {
-                    if (story_state is StoryShown) {
-                      final curr_story_state = story_state;
-                      return GestureDetector(
-                        child: ShowImageOrVideo(
-                            curr_story_state.storyIndex,
-                            current_state.story_groups,
-                            current_state.currentStoryGroupIndex),
-                        onTapUp: (TapUpDetails details) {
-                          double screenWidth =
-                              MediaQuery.of(context).size.width;
-                          bool isTappedOnLeft =
-                              details.globalPosition.dx < screenWidth / 2;
-                          if (isTappedOnLeft) {
-                            //check if there is a previous story
-                            if (0 == story_state.storyIndex) {
-                              //last story.Go back a story group
-                              appBloc.add(PreviousStoryGroup());
-                            } else {
-                              storyBloc.add(PreviousStory());
-                            }
-                          } else {
-                            //User tapped on right
-                            if (story_state.storyIndex ==
-                                story_groups[group_index].stories.length - 1) {
-                              //last story.Go next a story group
-                              appBloc.add(NextStoryGroup());
-                            } else {
-                              storyBloc.add(NextStory());
-                            }
-                          }
-                        },
+        body: BuildCurrentStoryContent(context, appBloc, storyBloc));
+  }
+
+  Container BuildCurrentStoryContent(
+      BuildContext context, AppBloc appBloc, StoryBloc storyBloc) {
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          LinearProgressIndicator(),
+          BlocBuilder<AppBloc, AppState>(builder: (context, app_state) {
+            if (app_state is AppLoaded) {
+              final current_state = app_state;
+              final story_groups = current_state.story_groups;
+              final group_index = current_state.currentStoryGroupIndex;
+              final prev_index = current_state.prev_index;
+              if (group_index != prev_index) {
+                //the transition
+                return TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0, end: 1),
+                    duration: const Duration(milliseconds: 500),
+                    child: CurrentStory(current_state, appBloc, storyBloc,
+                        story_groups, group_index),
+                    builder: (context, dynamic animationValue, child) {
+                      final double angle =
+                          animationValue * (3.14 / 2); // 90 degrees
+                      final double scale = 1.0 - animationValue;
+                      return Transform(
+                        transform: Matrix4.identity()
+                          ..rotateZ(angle)
+                          ..scale(scale),
+                        child: child,
                       );
-                    } else {
-                      throw Exception(
-                          "Something went wrong with states.Check the Bloc structure");
-                    }
-                  });
-                } else if (app_state is AppFinished) {
-                  //Go back to the main page
-                  Future.delayed(Duration.zero, () {
-                    Navigator.pop(context);
-                  });
-                  return Container(
-                    height: 0,
-                    width: 0,
-                  );
-                } else {
-                  throw Exception(
-                      "Something went wrong with states.Check the Bloc structure");
-                }
-              })
-            ],
-          ),
-        ));
+                    });
+              } else {
+                //No transition
+                return CurrentStory(current_state, appBloc, storyBloc,
+                    story_groups, group_index);
+              }
+            } else if (app_state is AppFinished) {
+              //Go back to the main page
+              Future.delayed(Duration.zero, () {
+                Navigator.pop(context);
+              });
+              return Container(
+                height: 0,
+                width: 0,
+              );
+            } else {
+              throw Exception(
+                  "Something went wrong with states.Check the Bloc structure");
+            }
+          })
+        ],
+      ),
+    );
+  }
+
+  BlocBuilder<StoryBloc, StoryState> CurrentStory(
+      AppLoaded current_state,
+      AppBloc appBloc,
+      StoryBloc storyBloc,
+      List<StoryGroup> story_groups,
+      int group_index) {
+    return BlocBuilder<StoryBloc, StoryState>(builder: (context, story_state) {
+      if (story_state is StoryShown) {
+        final curr_story_state = story_state;
+        return GestureDetector(
+          child: ShowImageOrVideo(curr_story_state.storyIndex,
+              current_state.story_groups, current_state.currentStoryGroupIndex),
+          onTapUp: (TapUpDetails details) {
+            double screenWidth = MediaQuery.of(context).size.width;
+            bool isTappedOnLeft = details.globalPosition.dx < screenWidth / 2;
+            if (isTappedOnLeft) {
+              //check if there is a previous story
+              if (0 == story_state.storyIndex) {
+                //last story.Go back a story group
+                appBloc.add(PreviousStoryGroup());
+              } else {
+                storyBloc.add(PreviousStory());
+              }
+            } else {
+              //User tapped on right
+              if (story_state.storyIndex ==
+                  story_groups[group_index].stories.length - 1) {
+                //last story.Go next a story group
+                appBloc.add(NextStoryGroup());
+                ;
+              } else {
+                storyBloc.add(NextStory());
+              }
+            }
+          },
+        );
+      } else {
+        throw Exception(
+            "Something went wrong with states.Check the Bloc structure");
+      }
+    });
   }
 
   AppBar appBar(BuildContext context, AppBloc appBloc) {
@@ -141,37 +174,3 @@ class StoryPage extends StatelessWidget {
     return _chewieController;
   }
 }
-
-// if (!(0 <= current_state.groupIndex &&
-//                       current_state.groupIndex <=
-//                           HomePage.Story_groups.length - 1)) {
-//                     //group index out of bounds meaning there are no more groups to check
-//                     //in the direction of prev/next
-//                     // Schedule Navigator.pop after the current build cycle
-//                     Future.delayed(Duration.zero, () {
-//                       Navigator.pop(context);
-//                     });
-//                     //This is just a dummy container
-//                     return Container(
-//                       height: 0,
-//                       width: 0,
-//                     );
-//                   } else {
-//                     return GestureDetector(
-//                       child: ShowImageOrVideo(state),
-//                       onTapUp: (TapUpDetails details) {
-//                         // Get the width of the screen
-//                         double screenWidth = MediaQuery.of(context).size.width;
-
-//                         // Determine if the tap was on the left or right side
-//                         bool isTappedOnLeft =
-//                             details.globalPosition.dx < screenWidth / 2;
-
-//                         if (isTappedOnLeft) {
-//                           context.read<StoryBloc>().add(PreviousStoryEvent());
-//                         } else {
-//                           context.read<StoryBloc>().add(NextStoryEvent());
-//                         }
-//                       },
-//                     );
-//                   }

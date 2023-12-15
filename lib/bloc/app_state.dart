@@ -12,10 +12,11 @@ final class AppInitial extends AppState {}
 final class AppLoaded extends AppState {
   final List<StoryGroup> story_groups;
   final int currentStoryGroupIndex;
-  AppLoaded({
-    required this.story_groups,
-    required this.currentStoryGroupIndex,
-  });
+  final int prev_index;
+  AppLoaded(
+      {required this.story_groups,
+      required this.currentStoryGroupIndex,
+      required this.prev_index});
 
   @override
   List<Object> get props => [story_groups, currentStoryGroupIndex];
