@@ -50,4 +50,12 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }
     });
   }
+
+  bool isTransitioningToNewGroup(int newGroupIndex) {
+    if (state is AppLoaded) {
+      final currentGroupIndex = (state as AppLoaded).currentStoryGroupIndex;
+      return currentGroupIndex != newGroupIndex;
+    }
+    return false;
+  }
 }
