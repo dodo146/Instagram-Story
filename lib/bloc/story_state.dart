@@ -11,9 +11,10 @@ final class StoryInitial extends StoryState {}
 
 final class StoryShown extends StoryState {
   final int storyIndex;
+  final double progress;
 
-  StoryShown(this.storyIndex);
+  StoryShown(this.storyIndex, this.progress);
 
   @override
-  List<Object> get props => [storyIndex];
+  List<Object> get props => [storyIndex, progress];
 }

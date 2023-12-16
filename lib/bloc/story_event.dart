@@ -20,3 +20,11 @@ class SetStoryIndex extends StoryEvent {
   @override
   List<Object> get props => [story_index];
 }
+
+class Progress extends StoryEvent {
+  final double newProgress;
+  Progress({required this.newProgress});
+
+  @override
+  List<Object> get props => [newProgress];
+}

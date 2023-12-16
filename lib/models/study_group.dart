@@ -30,8 +30,8 @@ class StoryGroup extends Equatable {
 
     stories.add(StoryGroup(
       stories: [
-        "assets/images/dog_image.jpeg",
         "assets/images/grandma.jpg",
+        "assets/images/dog_image.jpeg",
       ],
       icon: Icon(
         Icons.boy,
@@ -52,8 +52,8 @@ class StoryGroup extends Equatable {
     ));
     stories.add(StoryGroup(
       stories: [
-        "assets/images/dog_image.jpeg",
         "assets/images/grandma.jpg",
+        "assets/images/dog_image.jpeg",
       ],
       icon: Icon(
         Icons.girl,
