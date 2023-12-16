@@ -12,8 +12,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     on<StoryGroupPressed>((event, emit) {
       emit(AppLoaded(
           story_groups: StoryGroup.getStories(),
-          currentStoryGroupIndex: event.group_index,
-          prev_index: event.group_index));
+          currentStoryGroupIndex: event.group_index));
     });
     on<NextStoryGroup>((event, emit) {
       if (state is AppLoaded) {
@@ -23,8 +22,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         if (group_index < story_groups.length - 1) {
           emit(AppLoaded(
               story_groups: story_groups,
-              currentStoryGroupIndex: group_index + 1,
-              prev_index: group_index));
+              currentStoryGroupIndex: group_index + 1));
           //Tell the story block to set its story index to 0
           storyBloc.add(SetStoryIndex(story_index: 0));
         } else {
@@ -41,8 +39,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         if (0 < group_index) {
           emit(AppLoaded(
               story_groups: story_groups,
-              currentStoryGroupIndex: group_index - 1,
-              prev_index: group_index));
+              currentStoryGroupIndex: group_index - 1));
           //Tell the story block to set its story index to the previous groups last story index
           storyBloc.add(SetStoryIndex(
               story_index: story_groups[group_index - 1].stories.length - 1));

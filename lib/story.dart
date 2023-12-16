@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable, unnecessary_null_comparison
-import 'package:chewie/chewie.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story/bloc/app_bloc.dart';
@@ -11,16 +12,37 @@ class StoryPage extends StatelessWidget {
   StoryPage({super.key, required this.index});
   final int index;
   late VideoPlayerController _controller;
-  late ChewieController _chewieController;
 
   @override
   Widget build(BuildContext context) {
+    final totalDuration = 5; // in seconds
+    final updateInterval = 0.02; // in seconds
+    final totalSteps = (totalDuration / updateInterval).round();
+    final incrementValue = 1.0 / totalSteps;
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
     final StoryBloc storyBloc = BlocProvider.of<StoryBloc>(context);
     return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         appBar: appBar(context, appBloc),
-        body: BuildCurrentStoryContent(context, appBloc, storyBloc));
+        body: Column(
+          children: [
+            BlocBuilder<StoryBloc, StoryState>(builder: (context, state) {
+              if (state is StoryShown) {
+                final curr_state = state;
+                storyBloc.add(Progress(newProgress: incrementValue));
+                return LinearProgressIndicator(
+                  backgroundColor: Colors.white,
+                  value: curr_state.progress,
+                  color: Colors.amber,
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            }),
+            Expanded(
+                child: BuildCurrentStoryContent(context, appBloc, storyBloc)),
+          ],
+        ));
   }
 
   Container BuildCurrentStoryContent(
@@ -31,36 +53,14 @@ class StoryPage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          LinearProgressIndicator(),
+          //LinearProgressIndicator(),
           BlocBuilder<AppBloc, AppState>(builder: (context, app_state) {
             if (app_state is AppLoaded) {
               final current_state = app_state;
               final story_groups = current_state.story_groups;
               final group_index = current_state.currentStoryGroupIndex;
-              final prev_index = current_state.prev_index;
-              if (group_index != prev_index) {
-                //the transition
-                return TweenAnimationBuilder(
-                    tween: Tween<double>(begin: 0, end: 1),
-                    duration: const Duration(milliseconds: 500),
-                    child: CurrentStory(current_state, appBloc, storyBloc,
-                        story_groups, group_index),
-                    builder: (context, dynamic animationValue, child) {
-                      final double angle =
-                          animationValue * (3.14 / 2); // 90 degrees
-                      final double scale = 1.0 - animationValue;
-                      return Transform(
-                        transform: Matrix4.identity()
-                          ..rotateZ(angle)
-                          ..scale(scale),
-                        child: child,
-                      );
-                    });
-              } else {
-                //No transition
-                return CurrentStory(current_state, appBloc, storyBloc,
-                    story_groups, group_index);
-              }
+              return CurrentStory(
+                  current_state, appBloc, storyBloc, story_groups, group_index);
             } else if (app_state is AppFinished) {
               //Go back to the main page
               Future.delayed(Duration.zero, () {
@@ -74,7 +74,7 @@ class StoryPage extends StatelessWidget {
               throw Exception(
                   "Something went wrong with states.Check the Bloc structure");
             }
-          })
+          }),
         ],
       ),
     );
@@ -90,8 +90,13 @@ class StoryPage extends StatelessWidget {
       if (story_state is StoryShown) {
         final curr_story_state = story_state;
         return GestureDetector(
-          child: ShowImageOrVideo(curr_story_state.storyIndex,
-              current_state.story_groups, current_state.currentStoryGroupIndex),
+          child: story_groups[group_index]
+                  .stories[story_state.storyIndex]
+                  .endsWith(".mp4")
+              ? ShowVideo(
+                  curr_story_state.storyIndex, story_groups, group_index)
+              : ShowImage(
+                  curr_story_state.storyIndex, story_groups, group_index),
           onTapUp: (TapUpDetails details) {
             double screenWidth = MediaQuery.of(context).size.width;
             bool isTappedOnLeft = details.globalPosition.dx < screenWidth / 2;
@@ -147,30 +152,28 @@ class StoryPage extends StatelessWidget {
     );
   }
 
-  Widget ShowImageOrVideo(
+  Widget ShowImage(
       int story_index, List<StoryGroup> story_groups, int group_index) {
-    if (story_groups[group_index].stories[story_index].endsWith(".mp4")) {
-      //return a video
-      return VideoPlayer(_createChewieController(
-              story_groups[group_index].stories[story_index])
-          .videoPlayerController);
-    } else {
-      //return an image
-      return Image.asset(
-        story_groups[group_index].stories[story_index],
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-      );
-    }
+    //return an image
+    return Image.asset(
+      story_groups[group_index].stories[story_index],
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+    );
   }
 
-  ChewieController _createChewieController(String videoPath) {
-    _controller = VideoPlayerController.asset(videoPath);
+  Widget ShowVideo(
+      int story_index, List<StoryGroup> story_groups, int group_index) {
+    //return an image
+    return VideoPlayer(
+        _createvideoController(story_groups[group_index].stories[story_index]));
+  }
 
-    _chewieController = ChewieController(
-        videoPlayerController: _controller, autoPlay: true, looping: false);
+  VideoPlayerController _createvideoController(String videoPath) {
+    _controller = VideoPlayerController.asset(videoPath)
+      ..initialize().then((__) => _controller.play());
 
-    return _chewieController;
+    return _controller;
   }
 }
