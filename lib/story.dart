@@ -15,10 +15,10 @@ class StoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalDuration = 5; // in seconds
-    final updateInterval = 0.02; // in seconds
-    final totalSteps = (totalDuration / updateInterval).round();
-    final incrementValue = 1.0 / totalSteps;
+    final ImagetotalDuration = 5; // in seconds
+    final ImageupdateInterval = 0.02; // in seconds
+    final ImagetotalSteps = (ImagetotalDuration / ImageupdateInterval).round();
+    final ImageincrementValue = 1.0 / ImagetotalSteps;
     final AppBloc appBloc = BlocProvider.of<AppBloc>(context);
     final StoryBloc storyBloc = BlocProvider.of<StoryBloc>(context);
     return Scaffold(
@@ -28,13 +28,27 @@ class StoryPage extends StatelessWidget {
           children: [
             BlocBuilder<StoryBloc, StoryState>(builder: (context, state) {
               if (state is StoryShown) {
-                final curr_state = state;
-                storyBloc.add(Progress(newProgress: incrementValue));
-                return LinearProgressIndicator(
-                  backgroundColor: Colors.white,
-                  value: curr_state.progress,
-                  color: Colors.amber,
-                );
+                final story_state = state;
+                if (appBloc.state is AppLoaded) {
+                  final app_state = appBloc.state as AppLoaded;
+                  if (app_state.story_groups[app_state.currentStoryGroupIndex]
+                      .stories[story_state.storyIndex]
+                      .endsWith(".mp4")) {
+                    //This is a video.//Adjust the timing accordingly.
+                    return SizedBox.shrink();
+                  } else {
+                    //this is an image.Use 5 seconds for the progress bar.
+                    storyBloc.add(Progress(newProgress: ImageincrementValue));
+                    return LinearProgressIndicator(
+                      backgroundColor: Colors.white,
+                      value: story_state.progress,
+                      color: Colors.amber,
+                    );
+                  }
+                } else {
+                  throw Exception(
+                      "Something went wrong with states.Check the Bloc structure");
+                }
               } else {
                 return SizedBox.shrink();
               }
