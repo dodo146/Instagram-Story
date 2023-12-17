@@ -14,10 +14,15 @@ final class AppInitial extends AppState {}
 final class AppLoaded extends AppState {
   final List<StoryGroup> story_groups;
   final int currentStoryGroupIndex;
-  AppLoaded({required this.story_groups, required this.currentStoryGroupIndex});
+  final bool isTransition;
+  AppLoaded(
+      {required this.story_groups,
+      required this.currentStoryGroupIndex,
+      required this.isTransition});
 
   @override
-  List<Object> get props => [story_groups, currentStoryGroupIndex];
+  List<Object> get props =>
+      [story_groups, currentStoryGroupIndex, isTransition];
 }
 
 final class AppFinished extends AppState {}

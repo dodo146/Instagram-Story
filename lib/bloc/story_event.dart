@@ -28,3 +28,11 @@ class Progress extends StoryEvent {
   @override
   List<Object> get props => [newProgress];
 }
+
+class SetStopped extends StoryEvent {
+  final bool stopped;
+  SetStopped({required this.stopped});
+
+  @override
+  List<Object> get props => [stopped];
+}

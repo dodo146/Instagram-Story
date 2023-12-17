@@ -61,6 +61,18 @@ class StoryGroup extends Equatable {
       ),
       name: "İdil",
     ));
+    stories.add(StoryGroup(
+      stories: [
+        "assets/images/grandma.jpg",
+        "assets/images/dog_image.jpeg",
+        "assets/images/lol.jpg",
+      ],
+      icon: Icon(
+        Icons.boy,
+        size: 35,
+      ),
+      name: "Yiğit",
+    ));
     return stories;
   }
 

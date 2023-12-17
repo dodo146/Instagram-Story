@@ -26,6 +26,7 @@ class StoryPage extends StatelessWidget {
         appBar: appBar(context, appBloc),
         body: Column(
           children: [
+            //This is the progression bar
             BlocBuilder<StoryBloc, StoryState>(builder: (context, state) {
               if (state is StoryShown) {
                 final story_state = state;
@@ -38,13 +39,27 @@ class StoryPage extends StatelessWidget {
                     return SizedBox.shrink();
                   } else {
                     //this is an image.Use 5 seconds for the progress bar.
-                    storyBloc.add(Progress(newProgress: ImageincrementValue));
-                    return LinearProgressIndicator(
-                      backgroundColor: Colors.white,
-                      value: story_state.progress,
-                      color: Colors.amber,
-                    );
+                    if (story_state.isStopped) {
+                      //Stop the progress
+                      return LinearProgressIndicator(
+                        backgroundColor: Colors.white,
+                        value: story_state.progress,
+                        color: Colors.amber,
+                      );
+                    } else {
+                      storyBloc.add(Progress(newProgress: ImageincrementValue));
+                      return LinearProgressIndicator(
+                        backgroundColor: Colors.white,
+                        value: story_state.progress,
+                        color: Colors.amber,
+                      );
+                    }
                   }
+                } else if (appBloc.state is AppFinished) {
+                  return Container(
+                    height: 0,
+                    width: 0,
+                  );
                 } else {
                   throw Exception(
                       "Something went wrong with states.Check the Bloc structure");
@@ -67,14 +82,36 @@ class StoryPage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          //LinearProgressIndicator(),
           BlocBuilder<AppBloc, AppState>(builder: (context, app_state) {
             if (app_state is AppLoaded) {
               final current_state = app_state;
               final story_groups = current_state.story_groups;
               final group_index = current_state.currentStoryGroupIndex;
-              return CurrentStory(
-                  current_state, appBloc, storyBloc, story_groups, group_index);
+              if (current_state.isTransition) {
+                //do the transition
+                return TweenAnimationBuilder(
+                  duration: const Duration(milliseconds: 500),
+                  tween: Tween<double>(begin: 0, end: 1),
+                  builder: (context, value, child) {
+                    return Transform(
+                      transform: Matrix4.identity()
+                        ..rotateZ(value * (3.14 / 2))
+                        ..scale(1.0 - value),
+                      child: child,
+                    );
+                  },
+                  onEnd: () {
+                    //Set the transition in the app state to false
+                    appBloc.add(SetTransitionToFalse(value: false));
+                  },
+                  child: CurrentStory(current_state, appBloc, storyBloc,
+                      story_groups, group_index),
+                );
+              } else {
+                //no transition.Just show the current story
+                return CurrentStory(current_state, appBloc, storyBloc,
+                    story_groups, group_index);
+              }
             } else if (app_state is AppFinished) {
               //Go back to the main page
               Future.delayed(Duration.zero, () {
@@ -103,6 +140,17 @@ class StoryPage extends StatelessWidget {
     return BlocBuilder<StoryBloc, StoryState>(builder: (context, story_state) {
       if (story_state is StoryShown) {
         final curr_story_state = story_state;
+        //check to see if the progress bar is full
+        if (curr_story_state.progress == 1.0) {
+          //go to the next story if not last else go to the next story group
+          if (story_state.storyIndex ==
+              story_groups[group_index].stories.length - 1) {
+            //last story.Go next a story group
+            appBloc.add(NextStoryGroup());
+          } else {
+            storyBloc.add(NextStory());
+          }
+        }
         return GestureDetector(
           child: story_groups[group_index]
                   .stories[story_state.storyIndex]
@@ -133,6 +181,14 @@ class StoryPage extends StatelessWidget {
                 storyBloc.add(NextStory());
               }
             }
+          },
+          onLongPress: () {
+            //stop the progress bar
+            storyBloc.add(SetStopped(stopped: true));
+          },
+          onLongPressEnd: (details) {
+            //resume the progress bar
+            storyBloc.add(SetStopped(stopped: false));
           },
         );
       } else {

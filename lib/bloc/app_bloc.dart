@@ -12,7 +12,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     on<StoryGroupPressed>((event, emit) {
       emit(AppLoaded(
           story_groups: StoryGroup.getStories(),
-          currentStoryGroupIndex: event.group_index));
+          currentStoryGroupIndex: event.group_index,
+          isTransition: false));
     });
     on<NextStoryGroup>((event, emit) {
       if (state is AppLoaded) {
@@ -22,7 +23,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         if (group_index < story_groups.length - 1) {
           emit(AppLoaded(
               story_groups: story_groups,
-              currentStoryGroupIndex: group_index + 1));
+              currentStoryGroupIndex: group_index + 1,
+              isTransition: true));
           //Tell the story block to set its story index to 0
           storyBloc.add(SetStoryIndex(story_index: 0));
         } else {
@@ -39,7 +41,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         if (0 < group_index) {
           emit(AppLoaded(
               story_groups: story_groups,
-              currentStoryGroupIndex: group_index - 1));
+              currentStoryGroupIndex: group_index - 1,
+              isTransition: true));
           //Tell the story block to set its story index to the previous groups last story index
           storyBloc.add(SetStoryIndex(
               story_index: story_groups[group_index - 1].stories.length - 1));
@@ -49,13 +52,14 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         }
       }
     });
-  }
-
-  bool isTransitioningToNewGroup(int newGroupIndex) {
-    if (state is AppLoaded) {
-      final currentGroupIndex = (state as AppLoaded).currentStoryGroupIndex;
-      return currentGroupIndex != newGroupIndex;
-    }
-    return false;
+    on<SetTransitionToFalse>((event, emit) {
+      if (state is AppLoaded) {
+        final state = this.state as AppLoaded;
+        emit(AppLoaded(
+            currentStoryGroupIndex: state.currentStoryGroupIndex,
+            story_groups: state.story_groups,
+            isTransition: event.value));
+      }
+    });
   }
 }

@@ -18,3 +18,11 @@ class StoryGroupPressed extends AppEvent {
   @override
   List<Object> get props => [group_index];
 }
+
+class SetTransitionToFalse extends AppEvent {
+  final bool value;
+  SetTransitionToFalse({required this.value});
+
+  @override
+  List<Object> get props => [value];
+}
